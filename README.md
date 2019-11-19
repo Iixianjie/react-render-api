@@ -38,7 +38,56 @@ yarn add @lxjx/react-render-api
 
 <br>
 
-## 🗺guide
+## 🗺useage
+
+1. create ur component
+
+```tsx
+const Demo = (props: ReactRenderApiProps) => {
+    
+  React.useEffect(() => {
+    if (props.show) {
+      // hidden after one second
+      setTimeout(() => props.onClose && props.onClose(), 1000);
+    } else {
+      // remove current instance after one second(prevent damage to animation)
+      setTimeout(() => props.onRemove && props.onRemove(), 1000);
+    }
+  }, [props.show]);
+
+  return (
+    <div style={{ opacity: props.show ? 1 : 0, transition: '0.5s' }}>
+      <div>{props.title}</div>
+      <div>{props.desc}</div>
+    </div>
+  );
+};
+```
+
+2. create renderApi
+
+```tsx
+import Demo from './Demo';
+import createRenderApi from '@lxjx/react-render-api';
+
+type Option = {
+    title: string;
+    desc?: string;
+}
+
+const renderApi = createRenderApi<Option>(Demo);
+
+renderApi({
+    title: 'im a title...',
+    singleton: true, // only one instance can exist at the same time
+})
+```
+
+<br>
+
+<br>
+
+## 📜`API`
 
 ### createRenderApi
 
@@ -46,7 +95,6 @@ yarn add @lxjx/react-render-api
 
 ```typescript
 const renderApi = createRenderApi<ApiOptions>(Component, Option);
-
 // ApiOptions: api的配置参数
 
 /* 创建时的配置 */
@@ -68,7 +116,7 @@ interface Option: {
 const [ref, id] = renderApi(options)
 
 // options: 
-// renderApi创建后，配置项除了渲染组件本身的Props外，还包含一下额外的配置项
+// renderApi创建后，配置项除了渲染组件本身的Props外，还包含以下额外的配置项
 interface ReactRenderApiExtraProps {
   /** 相同api下每次只会存在一个实例 */
   singleton?: boolean;
@@ -85,138 +133,26 @@ interface ReactRenderApiInstance {
 // id: 实例id
 ```
 
-
-
-
-
 <br>
 
-## 其他
+### 传递给组件的props
 
-### 替换整个state
+传入实例组件中的额外prop
 
-内置`{ type: 'ReplaceRootState' }`, 可以使用它对根state进行替换
-
-```js
-dispatch({
-    type: 'replaceRootState',
-    user: {...},
-    list: {...},
-})
-```
-
-<br>
-
-### setState
-
-内置`{ type: 'setState/[namespace]' }`, 可以快捷的对某个model的state进行设置
-
-```js
-dispatch({
-    type: 'setState/user',
-    name: '123'
-})
-           
-dispatch({
-    type: 'setState/list',
-    list: [1, 2, 3, 4]
-})
-```
-<br>
-
-### devtool
-在满足 `window && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ && process.env.NODE_ENV === 'development'`时，会默认开启devtool的支持
-
-<br>
-
-### 连锁effect 
-
-每个effect都是一个async函数，所以可以将它们任意的组合使用
-
-```js
-effects: {
-    async getUserInfo(action, { dispatch }) {
-        console.log(1);
-
-        await delay(1000);
-
-        console.log(2);
-
-        dispatch(m1.reducers.put, 'effect set');
-
-        console.log(3);
-
-        await delay(1000);
-
-        console.log(4);
-
-        await dispatch(m2.effects.getUserInfo2);
-
-        console.log(6);
-
-        return 7;
-    },
-    async getUserInfo2() {
-        await delay(1000);
-        console.log(5);
-    },
-}
-
-// trigger
-dispatch(xx.effects.getUserInfo)
-	.then(res => console.log(res));      
-
-/* 
-    1
-    // waiting 1s
-    2
-    
-    3
-    
-    // waiting 1s
-    4
-    
-    -> lists/changeList2
-    
-    // waiting 1s
-    5
-    
-    6
-    
-    effect end
-    
-    7
-*/
-```
-
-<br >
-<br >
-
-## 额外的增强器和中间件
-r2内置了一些常用的增强器和中间件，你可以在需要的时候引入它们并使用。
-### redux-cache
-```js
-import { reduxCacheFactory } from '@lxjx/r2';
-
-createStoreEnhance<AppState>({
-  models: {
-    user,
-    home,
-  },
-  enhancer: reduxCacheFactory({ includes: ['user'] }), // 也可用于常规的createStore
-});
-```
-interface
-```js
-interface ReduxCacheFactory {
-  (options?: {
-    /** 用于存储到sessionStorage的key */
-    cacheKey?: string;
-    /** 当此项长度大于0时，只会缓存该数组内指定的key */
-    includes?: any[];
-  }): StoreEnhancer;
+```ts
+interface ReactRenderApiProps {
+  /** 实例组件是否显示 */
+  show?: boolean;
+  /** 从实例列表移除指定实例, 如果组件带关闭动画，请先使用onClose，然后再show = false时执行关闭动画并在合适的时机执行此方法来移除实例 */
+  onRemove?: () => void;
+  /** 将该项的show设置为false */
+  onClose?: () => void;
 }
 ```
+
+
+
+
 
 
 

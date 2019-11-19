@@ -6,20 +6,18 @@ import './test.css';
 const DemoComponent = (props: ReactRenderApiProps) => {
   React.useEffect(() => {
     if (props.show) {
-      setTimeout(() => {
-        props.onClose && props.onClose(); // 两秒后关闭
-      }, 2000);
+      // hidden after one second
+      setTimeout(() => props.onClose && props.onClose(), 1000);
     } else {
-      setTimeout(() => {
-        props.onRemove && props.onRemove();
-      }, 500) // 延迟方便查看效果
+      // remove current instance
+      setTimeout(() => props.onRemove && props.onRemove(), 1000);
     }
   }, [props.show]);
 
 
   return (
-    <div>
-      {JSON.stringify(props)}
+    <div style={{ opacity: props.show ? 1 : 0, transition: '0.5s' }}>
+      <div>transition</div>
     </div>
   );
 };
