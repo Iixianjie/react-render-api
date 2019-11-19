@@ -1,0 +1,32 @@
+{
+  "name": "@lxjx/react-render-api",
+  "version": "0.1.0",
+  "description": "render your react components through call api",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "authors": {
+    "name": "lixianjie",
+    "email": "1073830130@qq.com"
+  },
+  "repository": "https://github.com/Iixianjie/react-render-api",
+  "scripts": {
+    "dev": "father doc dev",
+    "build": "father build"
+  },
+  "peerDependencies": {
+    "react": ">= 16.8.0",
+    "react-dom": ">= 16.8.0"
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.11",
+    "@types/react-dom": "^16.9.4",
+    "father": "^2.26.0",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "typescript": "^3.7.2"
+  },
+  "dependencies": {
+    "@lxjx/utils": "^1.0.10"
+  },
+  "license": "MIT"
+}
