@@ -1,9 +1,10 @@
 {
   "name": "@lxjx/react-render-api",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "render your react components through call api",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
+  "typings": "./dist",
   "authors": {
     "name": "lixianjie",
     "email": "1073830130@qq.com"
