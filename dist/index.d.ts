@@ -10,11 +10,13 @@ interface Option {
     maxInstance?: number;
 }
 /** 调用api后返回的实例 */
-export interface ReactRenderApiInstance {
+export interface ReactRenderApiInstance<T = {}> {
     /** 关闭指定实例 */
-    close: (id: number) => void;
+    close: (id: string) => void;
     /** 关闭所有实例 */
     closeAll: () => void;
+    /** 根据指定id和option更新组件 */
+    update: (id: string, newOptions: Partial<T>) => void;
 }
 /** 传入实例组件中的额外prop，可以用它来扩展声明实例组件的Props type */
 export interface ReactRenderApiProps {
@@ -30,5 +32,5 @@ export interface ReactRenderApiExtraProps {
     /** 相同api下每次只会存在一个实例 */
     singleton?: boolean;
 }
-export default function createRenderApi<T extends {}>(Component: any, option?: Option): ({ singleton, ...props }: T & ReactRenderApiExtraProps) => [ReactRenderApiInstance, number];
+export default function createRenderApi<T extends {}>(Component: any, option?: Option): ({ singleton, ...props }: T & ReactRenderApiExtraProps) => [ReactRenderApiInstance<T>, string];
 export {};

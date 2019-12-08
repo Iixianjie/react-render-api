@@ -159,7 +159,7 @@ function createRenderApi(Component) {
   var Wrap = option.wrap,
       _option$maxInstance = option.maxInstance,
       maxInstance = _option$maxInstance === void 0 ? Infinity : _option$maxInstance;
-  /* 用于返回组件 */
+  /* 返回组件实例 */
 
   var ref = React__default.createRef();
   /* render组件，用于管理组件实例列表并提供一些常用接口 */
@@ -173,7 +173,8 @@ function createRenderApi(Component) {
     React.useImperativeHandle(Fref, function () {
       return {
         close: close,
-        closeAll: closeAll
+        closeAll: closeAll,
+        update: update
       };
     });
     /* 发起api调用时，合并到prop */
@@ -203,17 +204,31 @@ function createRenderApi(Component) {
         });
       });
     }
-    /* 设置指定组件实例的show为false */
+    /** 设置指定组件实例的show为false */
 
 
     function close(id) {
       closeHandle(id);
     }
-    /* 同close, 区别是不匹配id直接移除全部 */
+    /** 同close, 区别是不匹配id直接移除全部 */
 
 
     function closeAll() {
       closeHandle();
+    }
+    /** 根据指定id和props更新组件 */
+
+
+    function update(id, newProps) {
+      setList(function (p) {
+        return p.map(function (item) {
+          if (item.id === id) {
+            item = _objectSpread2({}, item, {}, newProps);
+          }
+
+          return item;
+        });
+      });
     }
     /* 根据是否传id隐藏一个/全部实例 */
 
@@ -260,7 +275,7 @@ function createRenderApi(Component) {
     var singleton = _ref2.singleton,
         props = _objectWithoutProperties(_ref2, ["singleton"]);
 
-    var id = Math.random();
+    var id = utils.createRandString(2);
 
     var _props = _objectSpread2({}, props, {
       id: id
@@ -275,7 +290,11 @@ function createRenderApi(Component) {
     var controller = React__default.createElement(RenderController, Object.assign({
       ref: ref
     }, _props));
-    ReactDom.render(Wrap ? React__default.createElement(Wrap, null, controller) : controller, utils.getPortalsNode());
+
+    try {
+      ReactDom.render(Wrap ? React__default.createElement(Wrap, null, controller) : controller, utils.getPortalsNode());
+    } catch (e) {}
+
     return [ref.current, id];
   }
 

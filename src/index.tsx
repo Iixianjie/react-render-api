@@ -140,15 +140,19 @@ export default function createRenderApi<T extends {}>(Component: any, option = {
 
     const controller = <RenderController ref={ref} {..._props as any} />;
 
-    ReactDom.render(
-      Wrap
-        ? (
-          <Wrap>
-            {controller}
-          </Wrap>
-        ) : controller,
-      getPortalsNode(),
-    );
+    try {
+      ReactDom.render(
+        Wrap
+          ? (
+            <Wrap>
+              {controller}
+            </Wrap>
+          ) : controller,
+        getPortalsNode(),
+      );
+    } catch (e) {
+
+    }
 
     return [ref.current, id] as [ReactRenderApiInstance<T>, string];
   }
