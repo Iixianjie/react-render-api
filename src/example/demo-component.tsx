@@ -7,17 +7,17 @@ const DemoComponent = (props: ReactRenderApiProps) => {
   React.useEffect(() => {
     if (props.show) {
       // hidden after one second
-      setTimeout(() => props.onClose && props.onClose(), 1000);
+      setTimeout(() => props.onClose && props.onClose(), 10000);
     } else {
       // remove current instance
-      setTimeout(() => props.onRemove && props.onRemove(), 1000);
+      setTimeout(() => props.onRemove && props.onRemove(), 10000);
     }
   }, [props.show]);
 
 
   return (
     <div style={{ opacity: props.show ? 1 : 0, transition: '0.5s' }}>
-      <div>transition</div>
+      <div>{JSON.stringify(props)}</div>
     </div>
   );
 };

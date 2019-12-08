@@ -3,7 +3,7 @@ import React, {
   ComponentType,
 } from 'react';
 import ReactDom from 'react-dom';
-import { getPortalsNode } from '@lxjx/utils';
+import { getPortalsNode, createRandString } from '@lxjx/utils';
 
 /**
  * 下文中的所有移除实例指的是将指定实例的props.show设置为false, 要移除实例，需要在渲染组件内部根据条件props.show = false调用onRemove()来移除，
@@ -19,11 +19,13 @@ interface Option {
 }
 
 /** 调用api后返回的实例 */
-export interface ReactRenderApiInstance {
+export interface ReactRenderApiInstance<T = {}> {
   /** 关闭指定实例 */
-  close: (id: number) => void;
+  close: (id: string) => void;
   /** 关闭所有实例 */
   closeAll: () => void;
+  /** 根据指定id和option更新组件 */
+  update: (id: string, newOptions: Partial<T>) => void;
 }
 
 /** 传入实例组件中的额外prop，可以用它来扩展声明实例组件的Props type */
@@ -42,20 +44,20 @@ export interface ReactRenderApiExtraProps {
   singleton?: boolean;
 }
 
-
 export default function createRenderApi<T extends {}>(Component: any, option = {} as Option) {
   const { wrap: Wrap, maxInstance = Infinity } = option;
-  type MixT = T & { show: boolean; id: number };
+  type MixT = T & { show: boolean; id: string };
 
-  /* 用于返回组件 */
-  const ref = React.createRef<ReactRenderApiInstance>();
+  /* 返回组件实例 */
+  const ref = React.createRef<ReactRenderApiInstance<T>>();
   /* render组件，用于管理组件实例列表并提供一些常用接口 */
-  const RenderController = forwardRef<ReactRenderApiInstance, MixT>(function RenderController(props, Fref): any {
+  const RenderController = forwardRef<ReactRenderApiInstance<T>, MixT>(function RenderController(props, Fref): any {
     const [list, setList] = useState<MixT[]>([]);
 
     useImperativeHandle(Fref, () => ({
       close,
       closeAll,
+      update,
     }));
 
     /* 发起api调用时，合并到prop */
@@ -71,23 +73,33 @@ export default function createRenderApi<T extends {}>(Component: any, option = {
     }, [props]);
 
     /* 从列表移除元素 */
-    function onRemove(removeId: number) {
+    function onRemove(removeId: string) {
       // 移除前请先确保该项的show已经为false，防止破坏掉关闭动画等 */
       setList((p) => p.filter((v) => v.id !== removeId));
     }
 
-    /* 设置指定组件实例的show为false */
-    function close(id: number) {
+    /** 设置指定组件实例的show为false */
+    function close(id: string) {
       closeHandle(id);
     }
 
-    /* 同close, 区别是不匹配id直接移除全部 */
+    /** 同close, 区别是不匹配id直接移除全部 */
     function closeAll() {
       closeHandle();
     }
 
+    /** 根据指定id和props更新组件 */
+    function update(id: string, newProps: Partial<T>) {
+      setList(p => p.map(item => {
+        if (item.id === id) {
+          item = {...item, ...newProps};
+        }
+        return item;
+      }));
+    }
+
     /* 根据是否传id隐藏一个/全部实例 */
-    function closeHandle(id?: number) {
+    function closeHandle(id?: string) {
       setList((p) => p.map((v) => {
         const temp = { ...v };
         if (id) {
@@ -117,7 +129,7 @@ export default function createRenderApi<T extends {}>(Component: any, option = {
 
   /* 动态渲染RenderController组件，包含Wrap时会一并渲染 */
   function renderApi({ singleton, ...props }: T & ReactRenderApiExtraProps) {
-    const id = Math.random();
+    const id = createRandString(2);
     const _props = { ...props, id };
 
     const closeAll = ref.current && ref.current.closeAll;
@@ -138,7 +150,7 @@ export default function createRenderApi<T extends {}>(Component: any, option = {
       getPortalsNode(),
     );
 
-    return [ref.current, id] as [ReactRenderApiInstance, number];
+    return [ref.current, id] as [ReactRenderApiInstance<T>, string];
   }
 
   return renderApi;

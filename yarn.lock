@@ -1803,10 +1803,10 @@
     "@babel/runtime" "^7.6.0"
     hoist-non-react-statics "^3.3.0"
 
-"@lxjx/utils@^1.0.10":
-  version "1.0.10"
-  resolved "https://registry.npm.taobao.org/@lxjx/utils/download/@lxjx/utils-1.0.10.tgz#2cc2992e7fe7356abb4781cef387ea737d1fb2f6"
-  integrity sha1-LMKZLn/nNWq7R4HO84fqc30fsvY=
+"@lxjx/utils@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.npmjs.org/@lxjx/utils/-/utils-1.1.0.tgz#d1a1f26381ff25f9895249b0987a98aa5170affe"
+  integrity sha512-UQPaZ2ev4VLOKzDSW8L7ntoJpVd+SV/812ehyzJNTe8UOUb4NZNPEpxAAeAjpACyHCL4W5DYDndJaTuxZn4Z5w==
 
 "@mdx-js/loader@^0.16.6":
   version "0.16.8"

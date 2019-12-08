@@ -27,7 +27,7 @@
     "typescript": "^3.7.2"
   },
   "dependencies": {
-    "@lxjx/utils": "^1.0.10"
+    "@lxjx/utils": "^1.1.0"
   },
   "license": "MIT"
 }

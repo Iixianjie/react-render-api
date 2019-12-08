@@ -15,6 +15,13 @@ const RenderApiDemo = () => {
               age: 17,
               // singleton: true,
             });
+
+            setTimeout(() => {
+              ref.update(id, {
+                name: 'jxl',
+              });
+            }, 1000);
+            console.log(ref);
           }}
           type="button"
         >render
