@@ -30,4 +30,5 @@ export default createRenderApi<{
   age: number;
 }>(DemoComponent, {
   // maxInstance: 4,
+  namespace: 'TEST'
 });

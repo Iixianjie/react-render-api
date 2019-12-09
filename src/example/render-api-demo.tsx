@@ -4,23 +4,13 @@ import { getPortalsNode } from '@lxjx/utils';
 
 import renderApi, { DemoComponent } from './demo-component';
 
-const portalsID = 'J__PORTALS__NODE';
-export const getPortalsNode2 = (namespace?: string) => {
-  let portalsEl = document.getElementById(portalsID);
-
-  if (!portalsEl) {
-    const el = document.createElement('div');
-    el.id = portalsID + (namespace ? '__' + namespace : '');
-    el.setAttribute('warning', '⛔⛔HIGH ENERGY⛔⛔');
-    portalsEl = document.body.appendChild(el);
-  }
-  return portalsEl;
-};
-
 const RenderApiDemo = () => {
-
   return (
     <div>
+      {ReactDom.render(
+        <DemoComponent show={true} />,
+        getPortalsNode(),
+      )}
       RenderApiDemo
       <div>
         <button

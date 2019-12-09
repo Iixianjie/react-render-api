@@ -16,6 +16,8 @@ interface Option {
   wrap?: ComponentType<any>;
   /** 最大实例数，调用api创建的实例数超过此数值时，会移除最先创建实例, 遵循“先进先出” */
   maxInstance?: number;
+  /** passed to getPortalsNode and all component instances will be rendered under the corresponding node */
+  namespace?: string;
 }
 
 /** 调用api后返回的实例 */
@@ -45,7 +47,7 @@ export interface ReactRenderApiExtraProps {
 }
 
 export default function createRenderApi<T extends {}>(Component: any, option = {} as Option) {
-  const { wrap: Wrap, maxInstance = Infinity } = option;
+  const { wrap: Wrap, maxInstance = Infinity, namespace } = option;
   type MixT = T & { show: boolean; id: string };
 
   // function ApiComponent(props: any) {
@@ -151,7 +153,7 @@ export default function createRenderApi<T extends {}>(Component: any, option = {
             {controller}
           </Wrap>
         ) : controller,
-      getPortalsNode(),
+      getPortalsNode(namespace),
     );
 
     return [ref.current, id] as [ReactRenderApiInstance<T>, string];

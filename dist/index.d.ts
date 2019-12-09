@@ -8,6 +8,8 @@ interface Option {
     wrap?: ComponentType<any>;
     /** 最大实例数，调用api创建的实例数超过此数值时，会移除最先创建实例, 遵循“先进先出” */
     maxInstance?: number;
+    /** 传递给getPortalsNode的命名空间、所有组件实例将会渲染到对应的节点下 */
+    namespace?: string;
 }
 /** 调用api后返回的实例 */
 export interface ReactRenderApiInstance<T = {}> {

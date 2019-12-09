@@ -158,7 +158,11 @@ function createRenderApi(Component) {
   var option = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   var Wrap = option.wrap,
       _option$maxInstance = option.maxInstance,
-      maxInstance = _option$maxInstance === void 0 ? Infinity : _option$maxInstance;
+      maxInstance = _option$maxInstance === void 0 ? Infinity : _option$maxInstance,
+      namespace = option.namespace; // function ApiComponent(props: any) {
+  //   return <Component {...props} />
+  // }
+
   /* 返回组件实例 */
 
   var ref = React__default.createRef();
@@ -290,11 +294,7 @@ function createRenderApi(Component) {
     var controller = React__default.createElement(RenderController, Object.assign({
       ref: ref
     }, _props));
-
-    try {
-      ReactDom.render(Wrap ? React__default.createElement(Wrap, null, controller) : controller, utils.getPortalsNode());
-    } catch (e) {}
-
+    ReactDom.render(Wrap ? React__default.createElement(Wrap, null, controller) : controller, utils.getPortalsNode(namespace));
     return [ref.current, id];
   }
 
