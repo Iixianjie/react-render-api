@@ -1459,6 +1459,13 @@
   dependencies:
     regenerator-runtime "^0.13.2"
 
+"@babel/runtime@^7.7.6":
+  version "7.7.6"
+  resolved "https://registry.npmjs.org/@babel/runtime/-/runtime-7.7.6.tgz#d18c511121aff1b4f2cd1d452f1bac9601dd830f"
+  integrity sha512-BWAJxpNVa0QlE5gZdWjSxXtemZyZ9RmrmVozxt3NUXeZhVIJ5ANyqmMc0JDrivBZyxUuQvFxlvH4OWWOogGfUw==
+  dependencies:
+    regenerator-runtime "^0.13.2"
+
 "@babel/template@7.0.0-beta.44":
   version "7.0.0-beta.44"
   resolved "https://registry.npm.taobao.org/@babel/template/download/@babel/template-7.0.0-beta.44.tgz#f8832f4fdcee5d59bf515e595fc5106c529b394f"
@@ -1803,10 +1810,10 @@
     "@babel/runtime" "^7.6.0"
     hoist-non-react-statics "^3.3.0"
 
-"@lxjx/utils@^1.1.2":
-  version "1.1.2"
-  resolved "https://registry.npmjs.org/@lxjx/utils/-/utils-1.1.2.tgz#39a3f0dcb1ec4e9c0c30bf37554351345cccd362"
-  integrity sha512-xM91+AYmyZprbg9plb+j3Cx5JrX6JvxXkMv0Tm+TS7Xdu9gpjxaUeqDF625JSBlYss1AMTeLq9seWcUk3eC4aw==
+"@lxjx/utils@^1.1.4":
+  version "1.1.4"
+  resolved "https://registry.npmjs.org/@lxjx/utils/-/utils-1.1.4.tgz#7158b40858211fb9205011c4b59f55906389e92e"
+  integrity sha512-oY4XAF9FcqG/QbG351kkEUTpHfxr9HDmsiagHoAziGhjcv+I/gw+azTHomTG4sE5Xi1bmOoZnZNIQ5pvtGJarA==
 
 "@mdx-js/loader@^0.16.6":
   version "0.16.8"
