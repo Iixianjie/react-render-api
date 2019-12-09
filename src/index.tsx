@@ -48,6 +48,10 @@ export default function createRenderApi<T extends {}>(Component: any, option = {
   const { wrap: Wrap, maxInstance = Infinity } = option;
   type MixT = T & { show: boolean; id: string };
 
+  // function ApiComponent(props: any) {
+  //   return <Component {...props} />
+  // }
+
   /* 返回组件实例 */
   const ref = React.createRef<ReactRenderApiInstance<T>>();
   /* render组件，用于管理组件实例列表并提供一些常用接口 */
