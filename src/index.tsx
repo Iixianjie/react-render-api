@@ -16,7 +16,7 @@ interface Option {
   wrap?: ComponentType<any>;
   /** 最大实例数，调用api创建的实例数超过此数值时，会移除最先创建实例, 遵循“先进先出” */
   maxInstance?: number;
-  /** passed to getPortalsNode and all component instances will be rendered under the corresponding node */
+  /** 将实例渲染到指定命名空间的节点下, 而不是使用默认的渲染节点 */
   namespace?: string;
 }
 
@@ -38,6 +38,10 @@ export interface ReactRenderApiProps {
   onRemove?: () => void;
   /** 将该项的show设置为false */
   onClose?: () => void;
+  /** 此参数透传至createRenderApi(options)中的option.namespace，用于帮助组件渲染到自定义命名的节点下
+   *  用于某些可能会存在组件形式与api形式一起使用的组件(如modal)，同节点下渲染两种组件会造成react渲染冲突。
+   * */
+  namespace?: string;
 }
 
 /** renderApi创建后，配置项除了渲染组件本身的Props外，还包含一下额外的配置项 */
@@ -124,6 +128,7 @@ export default function createRenderApi<T extends {}>(Component: any, option = {
       /* 直接将id bind到onRemove上实例组件就不用传id了 */
       <Component
         key={id}
+        namespace={namespace}
         {...v}
         /* eslint-disable-next-line react/jsx-no-bind */
         onClose={close.bind(null, id)}
