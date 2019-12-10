@@ -262,7 +262,8 @@ function createRenderApi(Component) {
       return (
         /* 直接将id bind到onRemove上实例组件就不用传id了 */
         React__default.createElement(Component, Object.assign({
-          key: id
+          key: id,
+          namespace: namespace
         }, v, {
           /* eslint-disable-next-line react/jsx-no-bind */
           onClose: close.bind(null, id),
