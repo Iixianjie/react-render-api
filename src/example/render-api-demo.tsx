@@ -5,12 +5,24 @@ import { getPortalsNode } from '@lxjx/utils';
 import renderApi, { DemoComponent } from './demo-component';
 
 const RenderApiDemo = () => {
+
+  React.useEffect(() => {
+    const [ref, id] = renderApi({
+      name: 'lxj',
+      age: 17,
+      // singleton: true,
+    });
+
+    console.log(ref, id);
+    ref.close(id);
+  });
+
   return (
     <div>
-      {ReactDom.render(
-        <DemoComponent show={true} />,
-        getPortalsNode(),
-      )}
+      {/*{ReactDom.render(*/}
+      {/*  <DemoComponent show={true} />,*/}
+      {/*  getPortalsNode(),*/}
+      {/*)}*/}
       RenderApiDemo
       <div>
         <button
@@ -20,13 +32,11 @@ const RenderApiDemo = () => {
               age: 17,
               // singleton: true,
             });
-
-            // setTimeout(() => {
-            //   ref.update(id, {
-            //     name: 'jxl',
-            //   });
-            // }, 1000);
-            console.log(ref);
+            setTimeout(() => {
+              ref.update(id, {
+                name: 'jxl',
+              });
+            }, 1000);
           }}
           type="button"
         >render

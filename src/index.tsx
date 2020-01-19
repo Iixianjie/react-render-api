@@ -14,7 +14,7 @@ import { getPortalsNode, createRandString } from '@lxjx/utils';
 interface Option {
   /** 包裹元素，如果传入，会用其对渲染出来的组件进行包裹 */
   wrap?: ComponentType<any>;
-  /** 最大实例数，调用api创建的实例数超过此数值时，会移除最先创建实例, 遵循“先进先出” */
+  /** Infinity | 最大实例数，调用api创建的实例数超过此数值时，会移除最先创建实例, 遵循“先进先出” */
   maxInstance?: number;
   /** 将实例渲染到指定命名空间的节点下, 而不是使用默认的渲染节点 */
   namespace?: string;
@@ -26,6 +26,10 @@ export interface ReactRenderApiInstance<T = {}> {
   close: (id: string) => void;
   /** 关闭所有实例 */
   closeAll: () => void;
+  /** 移除指定实例 */
+  remove: (id: string) => void;
+  /** 移除所有实例 */
+  removeAll: () => void;
   /** 根据指定id和option更新组件 */
   update: (id: string, newOptions: Partial<T>) => void;
 }
@@ -50,30 +54,28 @@ export interface ReactRenderApiExtraProps {
   singleton?: boolean;
 }
 
-export default function createRenderApi<T extends {}>(Component: any, option = {} as Option) {
+export default function createRenderApi<T extends object>(Component: ComponentType<any>, option = {} as Option) {
   const { wrap: Wrap, maxInstance = Infinity, namespace } = option;
   type MixT = T & { show: boolean; id: string };
 
-  // function ApiComponent(props: any) {
-  //   return <Component {...props} />
-  // }
-
   /* 返回组件实例 */
   const ref = React.createRef<ReactRenderApiInstance<T>>();
-  /* render组件，用于管理组件实例列表并提供一些常用接口 */
+  /* 核心render组件，用于管理组件实例列表并提供一些常用接口 */
   const RenderController = forwardRef<ReactRenderApiInstance<T>, MixT>(function RenderController(props, Fref): any {
     const [list, setList] = useState<MixT[]>([]);
 
     useImperativeHandle(Fref, () => ({
       close,
       closeAll,
+      remove: onRemove,
+      removeAll: onRemoveAll,
       update,
     }));
 
-    /* 发起api调用时，合并到prop */
+    /* 发起api调用时，合并到prop (在api中，每一次props改变都等于调用了一次api) */
     useEffect(() => {
-      setList((prev: MixT[]) => {
-        // 超出配置的实例数时，先进先出
+      setList((prev) => {
+        // 超出配置的实例数时，移除第一个show为true的实例
         if (prev.length >= maxInstance && prev.length > 0) {
           const ind = prev.findIndex(item => item.show);
           prev[ind].show = false;
@@ -82,20 +84,30 @@ export default function createRenderApi<T extends {}>(Component: any, option = {
       });
     }, [props]);
 
-    /* 从列表移除元素 */
+    /**
+     * 从列表移除元素实例
+     * 下面的几个方法使用setTimeout的原因是，在renderApi调用后，RenderController内用于更新状态的useEffect尚未触发更新，此时最新的实例列表中是没有当次操作新增的实例的，如果马上调用下面这些方法会不起任何作用，所以需要通过setTimeout来hack一下
+     * */
     function onRemove(removeId: string) {
       // 移除前请先确保该项的show已经为false，防止破坏掉关闭动画等 */
-      setList((p) => p.filter((v) => v.id !== removeId));
+      setTimeout(() => {
+        setList((p) => p.filter((v) => v.id !== removeId));
+      });
+    }
+
+    /* 移除所有实例 */
+    function onRemoveAll() {
+      setTimeout(() => setList([]));
     }
 
     /** 设置指定组件实例的show为false */
     function close(id: string) {
-      closeHandle(id);
+      setTimeout(() => closeHandle(id));
     }
 
     /** 同close, 区别是不匹配id直接移除全部 */
     function closeAll() {
-      closeHandle();
+      setTimeout(() => closeHandle());
     }
 
     /** 根据指定id和props更新组件 */
@@ -127,9 +139,9 @@ export default function createRenderApi<T extends {}>(Component: any, option = {
     return list.map(({ id, ...v }) => (
       /* 直接将id bind到onRemove上实例组件就不用传id了 */
       <Component
+        {...v}
         key={id}
         namespace={namespace}
-        {...v}
         /* eslint-disable-next-line react/jsx-no-bind */
         onClose={close.bind(null, id)}
         /* eslint-disable-next-line react/jsx-no-bind */
@@ -163,6 +175,10 @@ export default function createRenderApi<T extends {}>(Component: any, option = {
 
     return [ref.current, id] as [ReactRenderApiInstance<T>, string];
   }
+
+  // @ts-ignore 这里需要提前调用一次，否则在某些场景(如useEffect中)下第一次使用api时ref会为null
+  let [gg] = renderApi({});
+  gg.removeAll();
 
   return renderApi;
 }

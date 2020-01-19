@@ -1810,10 +1810,12 @@
     "@babel/runtime" "^7.6.0"
     hoist-non-react-statics "^3.3.0"
 
-"@lxjx/utils@^1.1.4":
-  version "1.1.4"
-  resolved "https://registry.npmjs.org/@lxjx/utils/-/utils-1.1.4.tgz#7158b40858211fb9205011c4b59f55906389e92e"
-  integrity sha512-oY4XAF9FcqG/QbG351kkEUTpHfxr9HDmsiagHoAziGhjcv+I/gw+azTHomTG4sE5Xi1bmOoZnZNIQ5pvtGJarA==
+"@lxjx/utils@^1.1.7":
+  version "1.1.7"
+  resolved "https://registry.npmjs.org/@lxjx/utils/-/utils-1.1.7.tgz#b1273820c9e02e8228f8cc2fc2bce41fd6badaf6"
+  integrity sha512-W2zxUM7LQpMoNdNhpQpNvYe2diZgVL74ueSw8D69TbzSlp9JtK1Kxd3muoJvFDV/Nl1IRoaETzJOBZqBFp8gkw==
+  dependencies:
+    "@babel/runtime" "^7.7.6"
 
 "@mdx-js/loader@^0.16.6":
   version "0.16.8"
@@ -2701,6 +2703,11 @@
   version "15.7.3"
   resolved "https://registry.npm.taobao.org/@types/prop-types/download/@types/prop-types-15.7.3.tgz#2ab0d5da2e5815f94b0b9d4b95d1e5f243ab2ca7"
   integrity sha1-KrDV2i5YFflLC51LldHl8kOrLKc=
+
+"@types/prop-types@^15.7.3":
+  version "15.7.3"
+  resolved "https://registry.npmjs.org/@types/prop-types/-/prop-types-15.7.3.tgz#2ab0d5da2e5815f94b0b9d4b95d1e5f243ab2ca7"
+  integrity sha512-KfRL3PuHmqQLOG+2tGpRO26Ctg+Cq1E01D2DMriKEATHgWLfeNDmq9e29Q9WIky0dQ3NPkd1mzYH8Lm936Z9qw==
 
 "@types/q@^1.5.1":
   version "1.5.2"
@@ -14172,10 +14179,19 @@ prop-types-exact@^1.2.0:
     object.assign "^4.1.0"
     reflect.ownkeys "^0.2.0"
 
-prop-types@15.7.2, prop-types@15.x, prop-types@^15.5.10, prop-types@^15.5.4, prop-types@^15.5.6, prop-types@^15.5.7, prop-types@^15.5.8, prop-types@^15.5.9, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@15.7.2, prop-types@15.x, prop-types@^15.5.10, prop-types@^15.5.4, prop-types@^15.5.6, prop-types@^15.5.7, prop-types@^15.5.8, prop-types@^15.5.9, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2:
   version "15.7.2"
   resolved "https://registry.npm.taobao.org/prop-types/download/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha1-UsQedbjIfnK52TYOAga5ncv/psU=
+  dependencies:
+    loose-envify "^1.4.0"
+    object-assign "^4.1.1"
+    react-is "^16.8.1"
+
+prop-types@^15.7.2:
+  version "15.7.2"
+  resolved "https://registry.npmjs.org/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
+  integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
   dependencies:
     loose-envify "^1.4.0"
     object-assign "^4.1.1"

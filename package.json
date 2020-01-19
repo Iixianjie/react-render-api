@@ -28,7 +28,9 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.7.6",
-    "@lxjx/utils": "^1.1.4"
+    "@lxjx/utils": "^1.1.7",
+    "@types/prop-types": "^15.7.3",
+    "prop-types": "^15.7.2"
   },
   "license": "MIT"
 }

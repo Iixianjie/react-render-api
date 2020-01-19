@@ -14,14 +14,11 @@ function createRenderApi(Component) {
   var Wrap = option.wrap,
       _option$maxInstance = option.maxInstance,
       maxInstance = _option$maxInstance === void 0 ? Infinity : _option$maxInstance,
-      namespace = option.namespace; // function ApiComponent(props: any) {
-  //   return <Component {...props} />
-  // }
-
+      namespace = option.namespace;
   /* 返回组件实例 */
 
   var ref = React.createRef();
-  /* render组件，用于管理组件实例列表并提供一些常用接口 */
+  /* 核心render组件，用于管理组件实例列表并提供一些常用接口 */
 
   var RenderController = forwardRef(function RenderController(props, Fref) {
     var _useState = useState([]),
@@ -33,14 +30,16 @@ function createRenderApi(Component) {
       return {
         close: close,
         closeAll: closeAll,
+        remove: onRemove,
+        removeAll: onRemoveAll,
         update: update
       };
     });
-    /* 发起api调用时，合并到prop */
+    /* 发起api调用时，合并到prop (在api中，每一次props改变都等于调用了一次api) */
 
     useEffect(function () {
       setList(function (prev) {
-        // 超出配置的实例数时，先进先出
+        // 超出配置的实例数时，移除第一个show为true的实例
         if (prev.length >= maxInstance && prev.length > 0) {
           var ind = prev.findIndex(function (item) {
             return item.show;
@@ -53,27 +52,44 @@ function createRenderApi(Component) {
         })]);
       });
     }, [props]);
-    /* 从列表移除元素 */
+    /**
+     * 从列表移除元素实例
+     * 下面的几个方法使用setTimeout的原因是，在renderApi调用后，RenderController内用于更新状态的useEffect尚未触发更新，此时最新的实例列表中是没有当次操作新增的实例的，如果马上调用下面这些方法会不起任何作用，所以需要通过setTimeout来hack一下
+     * */
 
     function onRemove(removeId) {
       // 移除前请先确保该项的show已经为false，防止破坏掉关闭动画等 */
-      setList(function (p) {
-        return p.filter(function (v) {
-          return v.id !== removeId;
+      setTimeout(function () {
+        setList(function (p) {
+          return p.filter(function (v) {
+            return v.id !== removeId;
+          });
         });
+      });
+    }
+    /* 移除所有实例 */
+
+
+    function onRemoveAll() {
+      setTimeout(function () {
+        return setList([]);
       });
     }
     /** 设置指定组件实例的show为false */
 
 
     function close(id) {
-      closeHandle(id);
+      setTimeout(function () {
+        return closeHandle(id);
+      });
     }
     /** 同close, 区别是不匹配id直接移除全部 */
 
 
     function closeAll() {
-      closeHandle();
+      setTimeout(function () {
+        return closeHandle();
+      });
     }
     /** 根据指定id和props更新组件 */
 
@@ -116,10 +132,10 @@ function createRenderApi(Component) {
 
       return (
         /* 直接将id bind到onRemove上实例组件就不用传id了 */
-        React.createElement(Component, Object.assign({
+        React.createElement(Component, Object.assign({}, v, {
           key: id,
-          namespace: namespace
-        }, v, {
+          namespace: namespace,
+
           /* eslint-disable-next-line react/jsx-no-bind */
           onClose: close.bind(null, id),
 
@@ -152,8 +168,14 @@ function createRenderApi(Component) {
     }, _props));
     ReactDom.render(Wrap ? React.createElement(Wrap, null, controller) : controller, getPortalsNode(namespace));
     return [ref.current, id];
-  }
+  } // @ts-ignore 这里需要提前调用一次，否则在某些场景(如useEffect中)下第一次使用api时ref会为null
 
+
+  var _renderApi = renderApi({}),
+      _renderApi2 = _slicedToArray(_renderApi, 1),
+      gg = _renderApi2[0];
+
+  gg.removeAll();
   return renderApi;
 }
 

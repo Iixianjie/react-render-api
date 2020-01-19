@@ -1,6 +1,6 @@
 import * as React from 'react';
-
-import createRenderApi, { ReactRenderApiProps } from '../index';
+import PropTypes from 'prop-types';
+import createRenderApi, {ReactRenderApiProps} from '../index';
 import './test.css';
 
 const DemoComponent = (props: ReactRenderApiProps) => {
@@ -16,10 +16,14 @@ const DemoComponent = (props: ReactRenderApiProps) => {
 
 
   return (
-    <div style={{ opacity: props.show ? 1 : 0, transition: '0.5s' }}>
+    <div style={{opacity: props.show ? 1 : 0, transition: '0.5s'}}>
       <div>{JSON.stringify(props)} hello</div>
     </div>
   );
+};
+
+DemoComponent.prototype = {
+  name: PropTypes.string.isRequired,
 };
 
 export {
@@ -30,5 +34,10 @@ export default createRenderApi<{
   age: number;
 }>(DemoComponent, {
   // maxInstance: 4,
-  namespace: 'TEST'
+  namespace: 'TEST',
+  wrap({children}) {
+    return (
+      <div style={{position: 'absolute', top: 0, left: 200}}>{children}</div>
+    )
+  }
 });

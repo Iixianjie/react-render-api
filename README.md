@@ -20,7 +20,7 @@
 
 ## 🎨`example`
 
-以下是一个通过react-render-api实现的message组件 // TODO: 添加bk链接
+以下是一个通过react-render-api实现的message组件
 
 ![loading...](https://github.com/Iixianjie/react-render-api/raw/master/example.gif)
 
@@ -135,6 +135,10 @@ interface ReactRenderApiInstance {
   close: (id: string) => void;
   /** 关闭所有实例 */
   closeAll: () => void;
+  /** 移除指定实例 */
+  remove: (id: string) => void;
+  /** 移除所有实例 */
+  removeAll: () => void;
   /** 根据指定id和option更新组件 */
   update: (id: string, newOptions: Partial<T>) => void;
 }

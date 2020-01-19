@@ -6,7 +6,7 @@ import { ComponentType } from 'react';
 interface Option {
     /** 包裹元素，如果传入，会用其对渲染出来的组件进行包裹 */
     wrap?: ComponentType<any>;
-    /** 最大实例数，调用api创建的实例数超过此数值时，会移除最先创建实例, 遵循“先进先出” */
+    /** Infinity | 最大实例数，调用api创建的实例数超过此数值时，会移除最先创建实例, 遵循“先进先出” */
     maxInstance?: number;
     /** 将实例渲染到指定命名空间的节点下, 而不是使用默认的渲染节点 */
     namespace?: string;
@@ -17,6 +17,10 @@ export interface ReactRenderApiInstance<T = {}> {
     close: (id: string) => void;
     /** 关闭所有实例 */
     closeAll: () => void;
+    /** 移除指定实例 */
+    remove: (id: string) => void;
+    /** 移除所有实例 */
+    removeAll: () => void;
     /** 根据指定id和option更新组件 */
     update: (id: string, newOptions: Partial<T>) => void;
 }
@@ -38,5 +42,5 @@ export interface ReactRenderApiExtraProps {
     /** 相同api下每次只会存在一个实例 */
     singleton?: boolean;
 }
-export default function createRenderApi<T extends {}>(Component: any, option?: Option): ({ singleton, ...props }: T & ReactRenderApiExtraProps) => [ReactRenderApiInstance<T>, string];
+export default function createRenderApi<T extends object>(Component: ComponentType<any>, option?: Option): ({ singleton, ...props }: T & ReactRenderApiExtraProps) => [ReactRenderApiInstance<T>, string];
 export {};
