@@ -1,6 +1,6 @@
 {
   "name": "@lxjx/react-render-api",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "render your react components through call api",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
