@@ -56,10 +56,11 @@ export interface ReactRenderApiExtraProps {
 
 export default function createRenderApi<T extends object>(Component: ComponentType<any>, option = {} as Option) {
   const { wrap: Wrap, maxInstance = Infinity, namespace } = option;
-  type MixT = T & { show: boolean; id: string };
+  type MixT = T & { show: boolean; id: string, isInit: boolean };
 
   /* 返回组件实例 */
   const ref = React.createRef<ReactRenderApiInstance<T>>();
+
   /* 核心render组件，用于管理组件实例列表并提供一些常用接口 */
   const RenderController = forwardRef<ReactRenderApiInstance<T>, MixT>(function RenderController(props, Fref): any {
     const [list, setList] = useState<MixT[]>([]);
@@ -71,16 +72,19 @@ export default function createRenderApi<T extends object>(Component: ComponentTy
       removeAll: onRemoveAll,
       update,
     }));
-
+    
     /* 发起api调用时，合并到prop (在api中，每一次props改变都等于调用了一次api) */
     useEffect(() => {
+      if (props.isInit) return;
+
       setList((prev) => {
         // 超出配置的实例数时，移除第一个show为true的实例
         if (prev.length >= maxInstance && prev.length > 0) {
           const ind = prev.findIndex(item => item.show);
           prev[ind].show = false;
         }
-        return [...prev, { ...props, show: true }];
+        
+        return [...prev, { ...props, show: 'show' in props ? props.show : true }];
       });
     }, [props]);
 
@@ -136,7 +140,7 @@ export default function createRenderApi<T extends object>(Component: ComponentTy
       }));
     }
 
-    return list.map(({ id, ...v }) => (
+    return list.map(({ id, isInit, ...v }) => (
       /* 直接将id bind到onRemove上实例组件就不用传id了 */
       <Component
         {...v}
@@ -170,15 +174,14 @@ export default function createRenderApi<T extends object>(Component: ComponentTy
             {controller}
           </Wrap>
         ) : controller,
-      getPortalsNode(namespace),
+      getPortalsNode(namespace)
     );
 
     return [ref.current, id] as [ReactRenderApiInstance<T>, string];
   }
 
-  // @ts-ignore 这里需要提前调用一次，否则在某些场景(如useEffect中)下第一次使用api时ref会为null
-  let [gg] = renderApi({});
-  gg.removeAll();
+  // @ts-ignore
+  renderApi({ show: false, isInit: true });
 
   return renderApi;
 }

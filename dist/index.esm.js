@@ -38,6 +38,7 @@ function createRenderApi(Component) {
     /* 发起api调用时，合并到prop (在api中，每一次props改变都等于调用了一次api) */
 
     useEffect(function () {
+      if (props.isInit) return;
       setList(function (prev) {
         // 超出配置的实例数时，移除第一个show为true的实例
         if (prev.length >= maxInstance && prev.length > 0) {
@@ -48,7 +49,7 @@ function createRenderApi(Component) {
         }
 
         return [].concat(_toConsumableArray(prev), [_objectSpread({}, props, {
-          show: true
+          show: 'show' in props ? props.show : true
         })]);
       });
     }, [props]);
@@ -128,7 +129,8 @@ function createRenderApi(Component) {
 
     return list.map(function (_ref) {
       var id = _ref.id,
-          v = _objectWithoutProperties(_ref, ["id"]);
+          isInit = _ref.isInit,
+          v = _objectWithoutProperties(_ref, ["id", "isInit"]);
 
       return (
         /* 直接将id bind到onRemove上实例组件就不用传id了 */
@@ -168,14 +170,13 @@ function createRenderApi(Component) {
     }, _props));
     ReactDom.render(Wrap ? React.createElement(Wrap, null, controller) : controller, getPortalsNode(namespace));
     return [ref.current, id];
-  } // @ts-ignore 这里需要提前调用一次，否则在某些场景(如useEffect中)下第一次使用api时ref会为null
+  } // @ts-ignore
 
 
-  var _renderApi = renderApi({}),
-      _renderApi2 = _slicedToArray(_renderApi, 1),
-      gg = _renderApi2[0];
-
-  gg.removeAll();
+  renderApi({
+    show: false,
+    isInit: true
+  });
   return renderApi;
 }
 

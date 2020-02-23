@@ -13,8 +13,7 @@ const RenderApiDemo = () => {
       // singleton: true,
     });
 
-    console.log(ref, id);
-    ref.close(id);
+    console.log(2, ref, id);
   });
 
   return (
