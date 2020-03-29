@@ -208,7 +208,13 @@ function createRenderApi(Component) {
       setTimeout(function () {
         setList(function (p) {
           return p.filter(function (v) {
-            return v.id !== removeId;
+            var notCurrent = v.id !== removeId;
+
+            if (!notCurrent && v.onRemove) {
+              v.onRemove(); // 当作为api使用时，需要模拟onRemove行为
+            }
+
+            return notCurrent;
           });
         });
       });
@@ -218,7 +224,12 @@ function createRenderApi(Component) {
 
     function onRemoveAll() {
       setTimeout(function () {
-        return setList([]);
+        return setList(function (prev) {
+          prev.forEach(function (ins) {
+            ins.onRemove && ins.onRemove(); // 当作为api使用时，需要模拟onRemove行为
+          });
+          return [];
+        });
       });
     }
     /** 设置指定组件实例的show为false */
@@ -260,11 +271,15 @@ function createRenderApi(Component) {
           var temp = _objectSpread2({}, v);
 
           if (id) {
-            if (v.id === id) {
+            if (v.id === id && temp.show) {
               temp.show = false;
+              temp.onClose && temp.onClose(); // 当作为api使用时，需要模拟onClose行为
             }
           } else {
-            temp.show = false;
+            if (temp.show) {
+              temp.show = false;
+              temp.onClose && temp.onClose(); // 当作为api使用时，需要模拟onClose行为
+            }
           }
 
           return temp;

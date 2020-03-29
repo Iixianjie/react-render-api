@@ -12,9 +12,9 @@ function render1(num: number) {
   console.log(num, ref, id);
 }
 
-for (let i = 0;i<10;i++) {
-  render1(i);
-}
+// for (let i = 0;i<10;i++) {
+//   render1(i);
+// }
 
 
 const RenderApiDemo = () => {
@@ -36,12 +36,20 @@ const RenderApiDemo = () => {
             const [ref, id] = renderApi({
               name: 'lxj',
               age: 17,
+              onClose() {
+                console.log(123);
+              },
+              onRemove() {
+                console.log(456);
+                
+              }
               // singleton: true,
             });
             setTimeout(() => {
-              ref.update(id, {
-                name: 'jxl',
-              });
+              // ref.update(id, {
+              //   name: 'jxl',
+              // });
+              ref.removeAll();
             }, 1000);
           }}
           type="button"

@@ -24,20 +24,23 @@ export interface ReactRenderApiInstance<T = {}> {
     /** 根据指定id和option更新组件 */
     update: (id: string, newOptions: Partial<T>) => void;
 }
-/** 传入实例组件中的额外prop，可以用它来扩展声明实例组件的Props type */
-export interface ReactRenderApiProps {
-    /** 实例组件是否显示 */
-    show?: boolean;
+/** 实现组件需要实现的方法, 由于内部需要单独为api接口实现这两个方法，所以单独提出来 */
+interface ReactRenderApiPropMethods {
     /** 从实例列表移除指定实例, 如果组件带关闭动画，请先使用onClose，然后在show = false时执行关闭动画并在合适的时机执行此方法来移除实例 */
     onRemove?: () => void;
     /** 将该项的show设置为false */
     onClose?: () => void;
+}
+/** 实现组件的基础props, 将由api控制器组件提供 */
+export interface ReactRenderApiProps extends ReactRenderApiPropMethods {
+    /** 实例组件是否显示 */
+    show?: boolean;
     /** 此参数透传至createRenderApi(options)中的option.namespace，用于帮助组件渲染到自定义命名的节点下
      *  用于某些可能会存在组件形式与api形式一起使用的组件(如modal)，同节点下渲染两种组件会造成react渲染冲突。
      * */
     namespace?: string;
 }
-/** renderApi创建后，配置项除了渲染组件本身的Props外，还包含一下额外的配置项 */
+/** renderApi创建后，配置项除了渲染组件本身的Props外，还包含以下额外的配置项 */
 export interface ReactRenderApiExtraProps {
     /** 相同api下每次只会存在一个实例 */
     singleton?: boolean;

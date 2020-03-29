@@ -7,10 +7,14 @@ const DemoComponent = (props: ReactRenderApiProps) => {
   React.useEffect(() => {
     if (props.show) {
       // hidden after one second
-      setTimeout(() => props.onClose && props.onClose(), 2000);
+      setTimeout(() => {
+        props.onClose && props.onClose();
+      }, 3000);
     } else {
+      setTimeout(() => {
+        props.onRemove && props.onRemove();
+      }, 2000);
       // remove current instance
-      setTimeout(() => props.onRemove && props.onRemove(), 2000);
     }
   }, [props.show]);
 
