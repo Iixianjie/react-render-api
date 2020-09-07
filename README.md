@@ -1,16 +1,13 @@
 <h1 align="center" style="color: #61dafb;">react-render-api</h1>
-
 <h1 align="center" style="font-size: 80px;color:#61dafb">🔌</h1>
-
 <p align="center">通过api来渲染你的react组件</p>
-
 
 
 <br>
 
 ## 📋`Introduction`
 
-通过此库、你可以轻松的通过react实现modal、drawer、tips等需要在外部唤起的react组件。
+轻松的通过react实现modal、drawer、tips等需要在外部唤起的react组件。
 
 
 
@@ -42,20 +39,34 @@ yarn add @lxjx/react-render-api
 
 ## 🗺useage
 
-用例：实现一个基础的提示组件，它会在api触发后存在1秒，并在1s后通过fade的方式离场。
+**用例：**实现一个基础的提示组件，它会在api触发后存在1秒，并在1s后通过fade的方式离场。
 
-1.create ur component
+1.create component
 
 ```tsx
-const Demo = (props: ReactRenderApiProps & DemoProps) => {
+import { ReactRenderApiPropBase } from '@lxjx/react-render-api';
+
+export interface TipsProps extends ReactRenderApiPropBase {
+  title: string;
+  desc?: string;
+}
+
+export default function Tips(props: TipsProps) {
     
   React.useEffect(() => {
     if (props.show) {
-      // 一秒后隐藏，调用onClose，通知控制组件将此实例的show设置为false
-      setTimeout(() => props.onClose && props.onClose(), 1000);
+      /** 处理显示 **/
+      
+      // 提示一秒后隐藏，调用onClose通知控制组件将此实例的show设置为false
+      // 如果不包含离场动画，可以直接调用props.Remove()
+      setTimeout(() => props.onClose(), 1000);
+      
     } else {
-      // 当组件存在离场动画时，在合适的时间通过onRemove通知控制组件移除该组件实例，如果没有动画，可以跳过onClose直接调用onRemove()移除实例
-      setTimeout(() => props.onRemove && props.onRemove(), 1000);
+      /** 处理隐藏 **/
+      
+      // 当组件存在离场动画时，在合适的时间通过onRemove()通知控制组件移除该组件实例
+      setTimeout(() => props.onRemove(), 1000);
+      
     }
   }, [props.show]);
 
@@ -71,20 +82,18 @@ const Demo = (props: ReactRenderApiProps & DemoProps) => {
 2. create renderApi
 
 ```tsx
-import Demo from './Demo';
+import Tips, { TipsProps } from './Tips';
 import createRenderApi from '@lxjx/react-render-api';
 
-type Option = {
-    title: string;
-    desc?: string;
-}
-
-const renderApi = createRenderApi<Option>(Demo);
+// 这里的TipsProps决定了api可以传入的参数
+const renderApi = createRenderApi<TipsProps>(Demo);
 
 renderApi({
     title: 'im a title...',
-    // 当传递此选项时，实例列表中最多只会同时存在一个组件实例
-    // singleton: true,
+		/** 内置选项 **/
+    // singleton: true, // 最多只会同时存在一个组件实例
+  	// onClose() {} // 组件关闭
+  	// onRemove() {} // 组件实例移除
 })
 ```
 
@@ -92,9 +101,21 @@ renderApi({
 
 <br>
 
+
+
+## 🔑`原理`
+
+调用 `createRenderApi` 创建api后，该api会拥有一个独立的顶层组件来管理通过api渲染的所有`API Component`实例，顶层组件会在内部维护一个List，并为每一个`API Component`实例提供`props.show`来作为组件的开关,`API Component`组件根据show的状态来实现对应的动画逻辑或显示隐藏状态, `API Component`内部可以通过`props.onClose()`来通知顶层组件将它的`show`设置为`false`, 如果组件使用了动画，应该在动画结束后通过`props.onRemove()`移除该组件的实例。
+
+
+
+<br>
+
+<br>
+
 ## 📜`API`
 
-### createRenderApi
+### createRenderApi()
 
 创建一个 render api
 
@@ -115,7 +136,7 @@ interface Option: {
 
 <br>
 
-### renderApi
+### renderApi()
 
 通过createRenderApi创建的api方法
 
@@ -146,7 +167,7 @@ interface ReactRenderApiInstance {
 
 <br>
 
-### props passed to component
+### API Component
 
 传递给api组件的额外props
 

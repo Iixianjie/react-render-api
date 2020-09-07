@@ -18,7 +18,6 @@ const DemoComponent = (props: ReactRenderApiProps) => {
     }
   }, [props.show]);
 
-
   return (
     <div style={{opacity: props.show ? 1 : 0, transition: '0.5s'}}>
       <div>{JSON.stringify(props)} hello</div>
@@ -36,7 +35,7 @@ export {
 export default createRenderApi<{
   name: string;
   age: number;
-}>(DemoComponent, {
+} & ReactRenderApiProps>(DemoComponent, {
   // maxInstance: 4,
   namespace: 'TEST',
   wrap({children}) {

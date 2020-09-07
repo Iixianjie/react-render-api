@@ -3,12 +3,7 @@ import React, {
   ComponentType,
 } from 'react';
 import ReactDom from 'react-dom';
-import { getPortalsNode, createRandString } from '@lxjx/utils';
-
-/**
- * 下文中的所有移除实例指的是将指定实例的props.show设置为false, 要移除实例，需要在渲染组件内部根据条件props.show = false调用onRemove()来移除，
- * 这样做的原因是大部分需要渲染的组件都是带动画的，直接移除实例会导致组件生硬的消失，所以更好的方式是仅对 “该组件可移除” 进行通知
- * */
+import {getPortalsNode, createRandString} from '@lxjx/utils';
 
 /* 创建时的配置 */
 interface Option {
@@ -34,18 +29,18 @@ export interface ReactRenderApiInstance<T = {}> {
   update: (id: string, newOptions: Partial<T>) => void;
 }
 
-/** 实现组件需要实现的方法, 由于内部需要单独为api接口实现这两个方法，所以单独提出来 */
-interface ReactRenderApiPropMethods {
-    /** 从实例列表移除指定实例, 如果组件带关闭动画，请先使用onClose，然后在show = false时执行关闭动画并在合适的时机执行此方法来移除实例 */
-    onRemove?: () => void;
-    /** 将该项的show设置为false */
-    onClose?: () => void;
+/** 实现组件需要实现的方法/属性 */
+export interface ReactRenderApiPropBase {
+  /** 从实例列表移除指定实例, 如果组件带关闭动画，请先使用onClose，然后在show = false时执行关闭动画并在合适的时机执行此方法来移除实例 */
+  onRemove?: () => void;
+  /** 将该项的show设置为false */
+  onClose?: () => void;
+  /** 实例组件是否显示 */
+  show?: boolean;
 }
 
 /** 实现组件的基础props, 将由api控制器组件提供 */
-export interface ReactRenderApiProps extends ReactRenderApiPropMethods {
-  /** 实例组件是否显示 */
-  show?: boolean;
+export interface ReactRenderApiProps extends ReactRenderApiPropBase {
   /** 此参数透传至createRenderApi(options)中的option.namespace，用于帮助组件渲染到自定义命名的节点下
    *  用于某些可能会存在组件形式与api形式一起使用的组件(如modal)，同节点下渲染两种组件会造成react渲染冲突。
    * */
@@ -59,8 +54,10 @@ export interface ReactRenderApiExtraProps {
 }
 
 export default function createRenderApi<T extends object>(Component: ComponentType<any>, option = {} as Option) {
-  const { wrap: Wrap, maxInstance = Infinity, namespace } = option;
-  type MixT = T & ReactRenderApiPropMethods & { show: boolean; id: string, isInit: boolean };
+  const {wrap: Wrap, maxInstance = Infinity, namespace} = option;
+
+  /** 内部使用的每个实例包含的选项 */
+  type MixT = T & ReactRenderApiPropBase & { show: boolean; id: string, isInit: boolean };
 
   /* 返回组件实例 */
   const ref = React.createRef<ReactRenderApiInstance<T>>();
@@ -76,7 +73,7 @@ export default function createRenderApi<T extends object>(Component: ComponentTy
       removeAll: onRemoveAll,
       update,
     }));
-    
+
     /* 发起api调用时，合并到prop (在api中，每一次props改变都等于调用了一次api) */
     useEffect(() => {
       if (props.isInit) return;
@@ -87,8 +84,8 @@ export default function createRenderApi<T extends object>(Component: ComponentTy
           const ind = prev.findIndex(item => item.show);
           prev[ind].show = false;
         }
-        
-        return [...prev, { ...props, show: 'show' in props ? props.show : true }];
+
+        return [...prev, {...props, show: 'show' in props ? props.show : true}];
       });
     }, [props]);
 
@@ -96,11 +93,11 @@ export default function createRenderApi<T extends object>(Component: ComponentTy
      * 从列表移除元素实例
      * 下面的几个方法使用setTimeout的原因是，在renderApi调用后，RenderController内用于更新状态的useEffect尚未触发更新，此时最新的实例列表中是没有当次操作新增的实例的，如果马上调用下面这些方法会不起任何作用，所以需要通过setTimeout来hack一下
      * */
-    function onRemove(removeId: string) {
+    function onRemove(id: string) {
       // 移除前请先确保该项的show已经为false，防止破坏掉关闭动画等 */
       setTimeout(() => {
         setList((p) => p.filter((v) => {
-          const notCurrent = v.id !== removeId;
+          const notCurrent = v.id !== id;
           if (!notCurrent && v.onRemove) {
             v.onRemove();  // 当作为api使用时，需要模拟onRemove行为
           }
@@ -119,9 +116,9 @@ export default function createRenderApi<T extends object>(Component: ComponentTy
       }));
     }
 
-    /** 设置指定组件实例的show为false */
-    function close(id: string) {
-      setTimeout(() => closeHandle(id));
+    /** 设置指定组件实例的show为false, ...args用于为props.onClose提供额外参数 */
+    function close(id: string, ...args: any) {
+      setTimeout(() => closeHandle(id, ...args));
     }
 
     /** 同close, 区别是不匹配id直接移除全部 */
@@ -140,13 +137,13 @@ export default function createRenderApi<T extends object>(Component: ComponentTy
     }
 
     /* 根据是否传id隐藏一个/全部实例 */
-    function closeHandle(id?: string) {
+    function closeHandle(id?: string, ...args: any) {
       setList((p) => p.map((v) => {
-        const temp = { ...v };
+        const temp = {...v};
         if (id) {
           if (v.id === id && temp.show) {
             temp.show = false;
-            temp.onClose && temp.onClose(); // 当作为api使用时，需要模拟onClose行为
+            temp.onClose && (temp.onClose as any)(...args); // 当作为api使用时，需要模拟onClose行为
           }
         } else {
           if (temp.show) {
@@ -159,7 +156,7 @@ export default function createRenderApi<T extends object>(Component: ComponentTy
       }));
     }
 
-    return list.map(({ id, isInit, ...v }) => (
+    return list.map(({id, isInit, ...v}) => (
       /* 直接将id bind到onRemove上实例组件就不用传id了 */
       <Component
         {...v}
@@ -174,9 +171,9 @@ export default function createRenderApi<T extends object>(Component: ComponentTy
   });
 
   /* 动态渲染RenderController组件，包含Wrap时会一并渲染 */
-  function renderApi({ singleton, ...props }: T & ReactRenderApiExtraProps) {
+  function renderApi({singleton, ...props}: T & ReactRenderApiExtraProps) {
     const id = createRandString(2);
-    const _props = { ...props, id };
+    const _props = {...props, id};
 
     const closeAll = ref.current && ref.current.closeAll;
 
@@ -199,8 +196,7 @@ export default function createRenderApi<T extends object>(Component: ComponentTy
     return [ref.current, id] as [ReactRenderApiInstance<T>, string];
   }
 
-  // @ts-ignore
-  renderApi({ show: false, isInit: true });
+  renderApi({show: false, isInit: true} as any);
 
   return renderApi;
 }

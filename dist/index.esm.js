@@ -58,12 +58,12 @@ function createRenderApi(Component) {
      * 下面的几个方法使用setTimeout的原因是，在renderApi调用后，RenderController内用于更新状态的useEffect尚未触发更新，此时最新的实例列表中是没有当次操作新增的实例的，如果马上调用下面这些方法会不起任何作用，所以需要通过setTimeout来hack一下
      * */
 
-    function onRemove(removeId) {
+    function onRemove(id) {
       // 移除前请先确保该项的show已经为false，防止破坏掉关闭动画等 */
       setTimeout(function () {
         setList(function (p) {
           return p.filter(function (v) {
-            var notCurrent = v.id !== removeId;
+            var notCurrent = v.id !== id;
 
             if (!notCurrent && v.onRemove) {
               v.onRemove(); // 当作为api使用时，需要模拟onRemove行为
@@ -87,12 +87,16 @@ function createRenderApi(Component) {
         });
       });
     }
-    /** 设置指定组件实例的show为false */
+    /** 设置指定组件实例的show为false, ...args用于为props.onClose提供额外参数 */
 
 
     function close(id) {
+      for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
+
       setTimeout(function () {
-        return closeHandle(id);
+        return closeHandle.apply(void 0, [id].concat(args));
       });
     }
     /** 同close, 区别是不匹配id直接移除全部 */
@@ -121,6 +125,10 @@ function createRenderApi(Component) {
 
 
     function closeHandle(id) {
+      for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+        args[_key2 - 1] = arguments[_key2];
+      }
+
       setList(function (p) {
         return p.map(function (v) {
           var temp = _objectSpread({}, v);
@@ -128,7 +136,7 @@ function createRenderApi(Component) {
           if (id) {
             if (v.id === id && temp.show) {
               temp.show = false;
-              temp.onClose && temp.onClose(); // 当作为api使用时，需要模拟onClose行为
+              temp.onClose && temp.onClose.apply(temp, args); // 当作为api使用时，需要模拟onClose行为
             }
           } else {
             if (temp.show) {
@@ -185,8 +193,7 @@ function createRenderApi(Component) {
     }, _props));
     ReactDom.render(Wrap ? React.createElement(Wrap, null, controller) : controller, getPortalsNode(namespace));
     return [ref.current, id];
-  } // @ts-ignore
-
+  }
 
   renderApi({
     show: false,

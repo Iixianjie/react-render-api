@@ -7,6 +7,9 @@ function render1(num: number) {
     name: 'lxj',
     age: 17,
     // singleton: true,
+    onClose() {
+
+    }
   });
 
   console.log(num, ref, id);
@@ -15,7 +18,6 @@ function render1(num: number) {
 // for (let i = 0;i<10;i++) {
 //   render1(i);
 // }
-
 
 const RenderApiDemo = () => {
 
@@ -41,7 +43,6 @@ const RenderApiDemo = () => {
               },
               onRemove() {
                 console.log(456);
-                
               }
               // singleton: true,
             });
