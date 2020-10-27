@@ -160,18 +160,24 @@ function createRenderApi(Component) {
       _option$maxInstance = option.maxInstance,
       maxInstance = _option$maxInstance === void 0 ? Infinity : _option$maxInstance,
       namespace = option.namespace;
-  /* 返回组件实例 */
+  /** 返回组件实例 */
 
   var ref = React__default.createRef();
-  /* 核心render组件，用于管理组件实例列表并提供一些常用接口 */
+  /** 每个实例需要按顺序进行处理，第一个render后在执行第二个，未执行到的存放于此处 */
 
-  var RenderController = React.forwardRef(function RenderController(props, Fref) {
+  var stock = [];
+  /** 是否正在render，防止插队 */
+
+  var rendering = false;
+  /* 核心控制组件，用于管理组件实例列表并提供一些常用接口 */
+
+  var RenderController = React.forwardRef(function RenderController(props, fRef) {
     var _useState = React.useState([]),
         _useState2 = _slicedToArray(_useState, 2),
         list = _useState2[0],
         setList = _useState2[1];
 
-    React.useImperativeHandle(Fref, function () {
+    React.useImperativeHandle(fRef, function () {
       return {
         close: close,
         closeAll: closeAll,
@@ -333,12 +339,32 @@ function createRenderApi(Component) {
       closeAll();
     }
 
-    var controller = React__default.createElement(RenderController, Object.assign({
-      ref: ref
-    }, _props));
-    ReactDom.render(Wrap ? React__default.createElement(Wrap, null, controller) : controller, utils.getPortalsNode(namespace));
+    stock.push(_props);
+    render();
     return [ref.current, id];
   }
+  /** 从stock中取出第一个配置对象并创建实例，如果正在render中，延迟到下一loop */
+
+
+  function render() {
+    if (rendering) {
+      setTimeout(function () {
+        return render();
+      });
+      return;
+    }
+
+    rendering = true;
+    var current = stock.splice(0, 1)[0];
+    if (!current) return;
+    var controller = React__default.createElement(RenderController, Object.assign({
+      ref: ref
+    }, current));
+    ReactDom.render(Wrap ? React__default.createElement(Wrap, null, controller) : controller, utils.getPortalsNode(namespace), function () {
+      rendering = false;
+    });
+  } // 初始化调用，防止ref不存在
+
 
   renderApi({
     show: false,

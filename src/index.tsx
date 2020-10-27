@@ -56,17 +56,26 @@ export interface ReactRenderApiExtraProps {
 export default function createRenderApi<T extends object>(Component: ComponentType<any>, option = {} as Option) {
   const {wrap: Wrap, maxInstance = Infinity, namespace} = option;
 
-  /** 内部使用的每个实例包含的选项 */
-  type MixT = T & ReactRenderApiPropBase & { show: boolean; id: string, isInit: boolean };
+  /** 用户传入的选项 */
+  type ConfItem = T & ReactRenderApiExtraProps;
 
-  /* 返回组件实例 */
+  /** 内部使用的每个实例包含的选项 */
+  type MixT = T & ReactRenderApiExtraProps & ReactRenderApiProps & { show: boolean; id: string, isInit: boolean };
+
+  /** 返回组件实例 */
   const ref = React.createRef<ReactRenderApiInstance<T>>();
 
-  /* 核心render组件，用于管理组件实例列表并提供一些常用接口 */
-  const RenderController = forwardRef<ReactRenderApiInstance<T>, MixT>(function RenderController(props, Fref): any {
+  /** 每个实例需要按顺序进行处理，第一个render后在执行第二个，未执行到的存放于此处 */
+  const stock: ConfItem[] = [];
+
+  /** 是否正在render，防止插队 */
+  let rendering = false;
+
+  /* 核心控制组件，用于管理组件实例列表并提供一些常用接口 */
+  const RenderController = forwardRef<ReactRenderApiInstance<T>, MixT>(function RenderController(props, fRef): any {
     const [list, setList] = useState<MixT[]>([]);
 
-    useImperativeHandle(Fref, () => ({
+    useImperativeHandle(fRef, () => ({
       close,
       closeAll,
       remove: onRemove,
@@ -87,6 +96,7 @@ export default function createRenderApi<T extends object>(Component: ComponentTy
 
         return [...prev, {...props, show: 'show' in props ? props.show : true}];
       });
+
     }, [props]);
 
     /**
@@ -171,9 +181,10 @@ export default function createRenderApi<T extends object>(Component: ComponentTy
   });
 
   /* 动态渲染RenderController组件，包含Wrap时会一并渲染 */
-  function renderApi({singleton, ...props}: T & ReactRenderApiExtraProps) {
+  function renderApi({singleton, ...props}: ConfItem) {
     const id = createRandString(2);
-    const _props = {...props, id};
+
+    const _props: any = {...props, id};
 
     const closeAll = ref.current && ref.current.closeAll;
 
@@ -181,7 +192,27 @@ export default function createRenderApi<T extends object>(Component: ComponentTy
       closeAll();
     }
 
-    const controller = <RenderController ref={ref} {..._props as any} />;
+    stock.push(_props);
+
+    render();
+
+    return [ref.current, id] as [ReactRenderApiInstance<T>, string];
+  }
+
+  /** 从stock中取出第一个配置对象并创建实例，如果正在render中，延迟到下一loop */
+  function render() {
+    if (rendering) {
+      setTimeout(() => render());
+      return;
+    }
+
+    rendering = true;
+
+    const current = stock.splice(0, 1)[0];
+
+    if (!current) return;
+
+    const controller = <RenderController ref={ref} {...current as any} />;
 
     ReactDom.render(
       Wrap
@@ -190,12 +221,14 @@ export default function createRenderApi<T extends object>(Component: ComponentTy
             {controller}
           </Wrap>
         ) : controller,
-      getPortalsNode(namespace)
+      getPortalsNode(namespace),
+      () => {
+        rendering = false;
+      }
     );
-
-    return [ref.current, id] as [ReactRenderApiInstance<T>, string];
   }
 
+  // 初始化调用，防止ref不存在
   renderApi({show: false, isInit: true} as any);
 
   return renderApi;

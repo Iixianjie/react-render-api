@@ -40,7 +40,7 @@ export default createRenderApi<{
   namespace: 'TEST',
   wrap({children}) {
     return (
-      <div style={{position: 'absolute', top: 0, left: 200}}>{children}</div>
+      <div style={{position: 'absolute', top: 0, right: 200}}>{children}</div>
     )
   }
 });

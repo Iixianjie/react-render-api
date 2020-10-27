@@ -19,11 +19,21 @@ function render1(num: number) {
 //   render1(i);
 // }
 
+let a = 0;
+
+const [ref, id] = renderApi({
+  name: 'lxj',
+  age: ++a,
+});
+
+console.log(ref, id)
+
+
 const RenderApiDemo = () => {
 
-  React.useEffect(() => {
-    render1(4);
-  });
+  // React.useEffect(() => {
+  //   render1(4);
+  // });
 
   return (
     <div>
@@ -35,23 +45,16 @@ const RenderApiDemo = () => {
       <div>
         <button
           onClick={() => {
-            const [ref, id] = renderApi({
-              name: 'lxj',
-              age: 17,
-              onClose() {
-                console.log(123);
-              },
-              onRemove() {
-                console.log(456);
-              }
-              // singleton: true,
-            });
-            setTimeout(() => {
-              // ref.update(id, {
-              //   name: 'jxl',
-              // });
-              ref.removeAll();
-            }, 1000);
+
+
+
+
+            // setTimeout(() => {
+            //   // ref.update(id, {
+            //   //   name: 'jxl',
+            //   // });
+            //   ref.removeAll();
+            // }, 1000);
           }}
           type="button"
         >render
